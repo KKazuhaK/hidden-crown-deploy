@@ -1,6 +1,6 @@
 # Hidden Crown deployment templates
 
-Public deployment files only; application source is maintained in a separate private repository. The public multi-platform image is `ghcr.io/kkazuhak/hidden-crown:1.0.0`.
+Public deployment files only; application source is maintained in a separate private repository. The public multi-platform image is `ghcr.io/kkazuhak/hidden-crown:1.0.2`.
 
 The standalone `docker-compose.yml` uses a bind mount: `/opt/hidden-crown/data` when placed in `/opt/hidden-crown`. Container UID/GID is `1000:1000`. Administrator credentials have no defaults; `.env.example` is an unconfigured example.
 
