@@ -21,11 +21,10 @@ jobs:
           set -euo pipefail
           bash -n install.sh
           sudo bash install.sh https://chess.example.com
-          cd /opt/hidden-crown
-          sudo test -s data/hidden-crown.sqlite
-          test "$(sudo stat -c '%u:%g' data/hidden-crown.sqlite)" = '1000:1000'
-          test "$(stat -c '%a' .env)" = 600
-          docker compose restart
+          sudo test -s /opt/hidden-crown/data/hidden-crown.sqlite
+          test "$(sudo stat -c '%u:%g' /opt/hidden-crown/data/hidden-crown.sqlite)" = '1000:1000'
+          test "$(sudo stat -c '%a' /opt/hidden-crown/.env)" = 600
+          sudo docker compose --project-directory /opt/hidden-crown restart
           for attempt in $(seq 1 30); do
             if curl -fsS -H 'Host: chess.example.com' http://127.0.0.1:8787/healthz; then break; fi
             sleep 1
