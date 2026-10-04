@@ -31,7 +31,7 @@ umask 077
 mkdir -p "$install_dir"
 cd "$install_dir"
 # The installer and downloaded templates belong to the same immutable Git commit.
-config_base=https://raw.githubusercontent.com/KKazuhaK/hidden-crown-deploy/ce1063f72a36f191eba9c0cd0db571d2e095324c
+config_base=https://raw.githubusercontent.com/KKazuhaK/hidden-crown-deploy/3ea519c61191f82720c4a511206271f94fdff5aa
 wget -qO docker-compose.yml.new "$config_base/docker-compose.yml"
 wget -qO .env.example.new "$config_base/.env.example"
 mv docker-compose.yml.new docker-compose.yml
@@ -41,7 +41,7 @@ printf '%s\n' \
   'ADMIN_USERNAME=admin' \
   "ADMIN_PASSWORD='$admin_password'" \
   'HOST_PORT=8787' \
-  'HIDDEN_CROWN_IMAGE=ghcr.io/kkazuhak/hidden-crown:1.0.0' \
+  'HIDDEN_CROWN_IMAGE=ghcr.io/kkazuhak/hidden-crown:1.0.2' \
   'WAITING_TIMEOUT_MINUTES=15' \
   'TRUSTED_PROXIES=' > .env
 chmod 600 .env
