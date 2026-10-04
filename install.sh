@@ -13,7 +13,7 @@ docker compose version >/dev/null
 docker info >/dev/null
 
 install_dir=/opt/hidden-crown
-if [ -e "$install_dir/.env" ] || [ -e "$install_dir/docker-compose.yml" ] || [ -e "$install_dir/data/hidden-crown.sqlite" ]; then
+if [ -e "$install_dir/.env" ] || [ -e "$install_dir/docker-compose.yml" ] || [ -e "$install_dir/data/hidden-crown.sqlite" ] || [ -e "$install_dir/data/hidden-crown-v2.sqlite" ]; then
   echo "Existing deployment in $install_dir; refusing to overwrite configuration or data." >&2
   exit 1
 fi
@@ -31,7 +31,7 @@ umask 077
 mkdir -p "$install_dir"
 cd "$install_dir"
 # The installer and downloaded templates belong to the same immutable Git commit.
-config_base=https://raw.githubusercontent.com/KKazuhaK/hidden-crown-deploy/3ea519c61191f82720c4a511206271f94fdff5aa
+config_base=https://raw.githubusercontent.com/KKazuhaK/hidden-crown-deploy/4ff2394c52a5ff5dafe20b5dadd9f673bfb6d105
 wget -qO docker-compose.yml.new "$config_base/docker-compose.yml"
 wget -qO .env.example.new "$config_base/.env.example"
 mv docker-compose.yml.new docker-compose.yml
@@ -41,7 +41,8 @@ printf '%s\n' \
   'ADMIN_USERNAME=admin' \
   "ADMIN_PASSWORD='$admin_password'" \
   'HOST_PORT=8787' \
-  'HIDDEN_CROWN_IMAGE=ghcr.io/kkazuhak/hidden-crown:1.0.2' \
+  'HIDDEN_CROWN_IMAGE=ghcr.io/kkazuhak/hidden-crown:2.0.0' \
+  'DATABASE_URL=' \
   'WAITING_TIMEOUT_MINUTES=15' \
   'TRUSTED_PROXIES=' > .env
 chmod 600 .env

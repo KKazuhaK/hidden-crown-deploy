@@ -15,14 +15,21 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+      - name: Validate standalone PostgreSQL template
+        shell: bash
+        env:
+          PUBLIC_ORIGIN: https://chess.example.com
+          ADMIN_PASSWORD: isolated-template-test-password
+          DATABASE_URL: postgresql://example:example@host.docker.internal:5432/hidden_crown
+        run: docker compose -f docker-compose.postgres.yml config --quiet
       - name: First installation and bind directory
         shell: bash
         run: |
           set -euo pipefail
           bash -n install.sh
           sudo bash install.sh https://chess.example.com
-          sudo test -s /opt/hidden-crown/data/hidden-crown.sqlite
-          test "$(sudo stat -c '%u:%g' /opt/hidden-crown/data/hidden-crown.sqlite)" = '1000:1000'
+          sudo test -s /opt/hidden-crown/data/hidden-crown-v2.sqlite
+          test "$(sudo stat -c '%u:%g' /opt/hidden-crown/data/hidden-crown-v2.sqlite)" = '1000:1000'
           test "$(sudo stat -c '%a' /opt/hidden-crown/.env)" = 600
           sudo docker compose --project-directory /opt/hidden-crown restart
           for attempt in $(seq 1 30); do
