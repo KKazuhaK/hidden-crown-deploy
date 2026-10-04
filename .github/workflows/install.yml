@@ -1,0 +1,43 @@
+name: Installer
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: First installation and bind directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n install.sh
+          sudo bash install.sh https://chess.example.com
+          cd /opt/hidden-crown
+          sudo test -s data/hidden-crown.sqlite
+          test "$(sudo stat -c '%u:%g' data/hidden-crown.sqlite)" = '1000:1000'
+          test "$(stat -c '%a' .env)" = 600
+          docker compose restart
+          for attempt in $(seq 1 30); do
+            if curl -fsS -H 'Host: chess.example.com' http://127.0.0.1:8787/healthz; then break; fi
+            sleep 1
+          done
+          curl -fsS -H 'Host: chess.example.com' http://127.0.0.1:8787/healthz
+          sudo bash -c 'set -eu; cd /opt/hidden-crown; source .env; jq -n --arg username "$ADMIN_USERNAME" --arg password "$ADMIN_PASSWORD" "{username: \$username, password: \$password}" | curl -fsS -H "Host: chess.example.com" -H "Origin: https://chess.example.com" -H "Content-Type: application/json" --data-binary @- http://127.0.0.1:8787/api/admin/login | jq -e ".csrf | length > 0"'
+      - name: Refuse to overwrite an existing deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          before=$(sudo sha256sum /opt/hidden-crown/.env)
+          if sudo bash install.sh https://chess.example.com; then
+            echo 'Installer must refuse to overwrite an existing deployment'; exit 1
+          fi
+          test "$before" = "$(sudo sha256sum /opt/hidden-crown/.env)"
